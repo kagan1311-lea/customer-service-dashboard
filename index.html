@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>דשבורד שירות לקוחות</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>דשבורד שירות לקוחות</h1>
+    <div class="topbar-sub">נתוני דמו — עדכון אחרון: <span id="lastUpdate"></span></div>
+  </header>
+
+  <main class="container">
+    <section class="kpi-grid" id="kpiGrid"></section>
+
+    <section class="charts-grid">
+      <div class="card chart-card">
+        <h3>פניות לפי סטטוס</h3>
+        <canvas id="statusChart"></canvas>
+      </div>
+      <div class="card chart-card">
+        <h3>נפח פניות ב-14 הימים האחרונים</h3>
+        <canvas id="volumeChart"></canvas>
+      </div>
+      <div class="card chart-card">
+        <h3>פניות לפי ערוץ</h3>
+        <canvas id="channelChart"></canvas>
+      </div>
+    </section>
+
+    <section class="card table-section">
+      <div class="table-toolbar">
+        <input type="text" id="searchInput" placeholder="חיפוש לפי לקוח, נושא או מספר פנייה..." />
+        <select id="statusFilter"><option value="">כל הסטטוסים</option></select>
+        <select id="priorityFilter"><option value="">כל העדיפויות</option></select>
+        <select id="channelFilter"><option value="">כל הערוצים</option></select>
+        <select id="agentFilter"><option value="">כל הסוכנים</option></select>
+        <button id="resetFilters">איפוס סינון</button>
+      </div>
+      <div class="table-wrap">
+        <table id="ticketsTable">
+          <thead>
+            <tr>
+              <th>מס' פנייה</th>
+              <th>לקוח</th>
+              <th>נושא</th>
+              <th>ערוץ</th>
+              <th>סטטוס</th>
+              <th>עדיפות</th>
+              <th>סוכן</th>
+              <th>נוצר</th>
+              <th>SLA</th>
+            </tr>
+          </thead>
+          <tbody id="ticketsBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="tableFooter"></div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
