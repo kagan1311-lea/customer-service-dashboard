@@ -21,6 +21,21 @@
 
 Browser-based web app. Desktop-first (manager/team-lead workstation), and it must also read and work well on mobile (checking the queue from a phone). One app, responsive layout — no separate mobile app.
 
+**No server.** Static client-side only: plain HTML/CSS/JS, no backend, no build step, no server-side code or database. It must run by opening `index.html` directly (or serving the folder as static files) — nothing to deploy or host beyond that. Any data (demo or uploaded) lives and is processed entirely in the browser.
+
+## Design
+
+Follow the look already established in the repository's initial commit (`style.css`, `index.html`) — don't introduce a new visual style:
+
+- **Language/direction:** Hebrew, RTL (`dir="rtl"`).
+- **Font:** `"Segoe UI", Arial, sans-serif`.
+- **Palette** (CSS variables in `:root`): background `#f4f6f9`, cards `#ffffff`, text `#1f2937` / muted `#6b7280`, border `#e5e7eb`, primary `#4f46e5`, accent `#0ea5e9`, status colors green `#16a34a` / yellow `#d97706` / red `#dc2626`.
+- **Header:** gradient bar (`linear-gradient(90deg, #4f46e5, #6366f1)`), white text.
+- **Cards:** white background, `12px` radius, soft shadow (`--shadow`), consistent padding — used for KPI tiles, charts, and the table section.
+- **Components:** pill-shaped status/priority badges, rounded inputs/buttons matching `--radius`, subtle hover states (row highlight, button darken).
+
+New features (filters, buttons, modals, etc.) should reuse these existing CSS variables and component patterns rather than inventing new colors, fonts, or card styles.
+
 ## Features
 
 **Must**
