@@ -63,6 +63,9 @@ function generateTickets(count) {
       id: `T-${20000 + i}`,
       customerId: customer.id,
       customerName: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      company: customer.company,
       subject: randomFrom(SUBJECTS),
       channel: randomFrom(CHANNELS),
       status,
@@ -82,11 +85,3 @@ function generateTickets(count) {
 }
 
 const TICKETS = generateTickets(38);
-
-function getCustomerById(id) {
-  return CUSTOMERS.find((c) => c.id === id);
-}
-
-function getTicketsByCustomer(customerId) {
-  return TICKETS.filter((t) => t.customerId === customerId);
-}

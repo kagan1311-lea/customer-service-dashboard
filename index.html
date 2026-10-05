@@ -38,7 +38,10 @@
         <select id="channelFilter"><option value="">כל הערוצים</option></select>
         <select id="agentFilter"><option value="">כל הסוכנים</option></select>
         <button id="resetFilters">איפוס סינון</button>
+        <button id="uploadButton">טעינת קובץ CSV / Excel</button>
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden />
       </div>
+      <div class="upload-error" id="uploadError" hidden></div>
       <div class="table-wrap">
         <table id="ticketsTable">
           <thead>
@@ -69,6 +72,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
