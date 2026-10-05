@@ -27,7 +27,7 @@ Browser-based web app. Desktop-first (manager/team-lead workstation), and it mus
 
 Follow the look already established in the repository's initial commit (`style.css`, `index.html`) — don't introduce a new visual style:
 
-- **Language/direction:** Hebrew, RTL (`dir="rtl"`).
+- **Language/direction:** Hebrew, RTL (`dir="rtl"`). All text is in Hebrew and right-aligned.
 - **Font:** `"Segoe UI", Arial, sans-serif`.
 - **Palette** (CSS variables in `:root`): background `#f4f6f9`, cards `#ffffff`, text `#1f2937` / muted `#6b7280`, border `#e5e7eb`, primary `#4f46e5`, accent `#0ea5e9`, status colors green `#16a34a` / yellow `#d97706` / red `#dc2626`.
 - **Header:** gradient bar (`linear-gradient(90deg, #4f46e5, #6366f1)`), white text.
