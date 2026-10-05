@@ -6,6 +6,8 @@ Live demo (GitHub Pages): https://kagan1311-lea.github.io/customer-service-dashb
 
 A static, single-page dashboard for visualizing customer service tickets. Hebrew (RTL) UI, built with vanilla HTML/CSS/JS and [Chart.js](https://www.chartjs.org/).
 
+![Dashboard screenshot](docs/screenshot.png)
+
 ## Features
 
 - KPI summary cards
