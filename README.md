@@ -4,7 +4,7 @@ Repo: https://github.com/kagan1311-lea/customer-service-dashboard
 
 Live demo (GitHub Pages): https://kagan1311-lea.github.io/customer-service-dashboard/
 
-A static, single-page dashboard for visualizing customer service tickets. Hebrew (RTL) UI, built with vanilla HTML/CSS/JS and [Chart.js](https://www.chartjs.org/).
+A static, single-page dashboard for visualizing customer service tickets. Hebrew (RTL) UI, built with vanilla HTML/CSS/JS and [Chart.js](https://www.chartjs.org/). Ticket data is loaded live from a [Supabase](https://supabase.com/) (Postgres) database via its public client API (read-only, anon key).
 
 ![Dashboard screenshot](docs/screenshot.png)
 
@@ -23,9 +23,11 @@ No build step or dependencies to install — just open `index.html` in a browser
 npx serve .
 ```
 
+An internet connection is required to load ticket data from Supabase.
+
 ## Project structure
 
 - `index.html` — page markup
 - `style.css` — styling
-- `data.js` — demo ticket data
+- `data.js` — Supabase client and ticket data loading
 - `app.js` — dashboard logic (rendering, filtering, charts)
