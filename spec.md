@@ -23,7 +23,13 @@ Browser-based web app. Desktop-first (manager/team-lead workstation), and it mus
 
 **No server of our own.** Static client-side only: plain HTML/CSS/JS, no backend code, no build step. It must run by opening `index.html` directly (or serving the folder as static files) — nothing to deploy or host beyond that. Ticket data is read directly from Supabase (Postgres) over its public client API, using a publishable anon key with row-level security restricting the client to read-only access; there is no app-specific backend or server-side code.
 
-## Design
+## Data refresh
+
+The dashboard itself only loads data on page load/reload — it does not poll Supabase while open. For a demo with static data this is enough, since the page always shows the latest data on the next visit.
+
+To make the demo feel alive without a real ticketing system behind it, the demo data in Supabase is regenerated on a schedule (via `pg_cron`, every 15 minutes) rather than staying static — each run replaces all rows in `tickets` with a fresh random set, exactly like the original seed. This is demo-only infrastructure, scoped to run until **2026-10-06 19:00 (Asia/Jerusalem)**, after which it stops automatically.
+
+**Important distinction:** this periodic regeneration only keeps the *demo data* moving — it does not make the open page itself refresh. If the data source were real (not demo), simply reloading on page load would not be enough once a manager leaves the dashboard open: the page would also need its own periodic client-side refresh (e.g. re-run `loadTickets()` every N minutes) so an open tab doesn't go stale. That client-side polling is not implemented yet — see Later, below.
 
 Follow the look already established in the repository's initial commit (`style.css`, `index.html`) — don't introduce a new visual style:
 
@@ -53,7 +59,7 @@ New features (filters, buttons, modals, etc.) should reuse these existing CSS va
 **Later**
 - Export filtered views back to CSV/Excel
 - Per-agent workload and performance breakdown
-- Scheduled/automatic data refresh from an external system
+- Client-side periodic auto-refresh (poll Supabase every few minutes) so a dashboard left open stays current once the data source is real, not demo
 
 ## Done means
 
