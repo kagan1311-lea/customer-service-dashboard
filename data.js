@@ -1,87 +1,50 @@
-// נתוני דמו לדשבורד שירות לקוחות
+// שכבת נתונים: שליפת פניות שירות מ-Supabase
 
-const STATUSES = ["פתוח", "בטיפול", "ממתין ללקוח", "סגור", "נפתח מחדש"];
-const PRIORITIES = ["נמוכה", "רגילה", "גבוהה", "דחופה"];
-const CHANNELS = ["מייל", "צ'אט", "טלפון", "פורום"];
-const CATEGORIES = ["חיוב ותשלומים", "בעיה טכנית", "משלוח", "החזר כספי", "שאלה כללית", "ביטול מנוי"];
-const AGENTS = ["נועה כהן", "איתי לוי", "מיכל בר", "דניאל אזולאי", "שירה גבאי"];
-const COMPANIES = ["טכנולייט בע\"מ", "גרין פודס", "אופיס פלוס", "מדיה סטאר", "נטוורק סול", "פרטי"];
+const SUPABASE_URL = "https://cltwytmvgxbbvdkyuegj.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsdHd5dG12Z3hiYnZka3l1ZWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyOTA4MzMsImV4cCI6MjEwNjg2NjgzM30.6blRgdHvpJMwzuaeKXuV-NAGXhk-_GBols66MhfLS-A";
 
-function randomFrom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function randomDate(daysBack) {
-  const d = new Date();
-  d.setDate(d.getDate() - Math.floor(Math.random() * daysBack));
-  d.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
-  return d;
-}
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function formatDate(d) {
   return d.toLocaleDateString("he-IL") + " " + d.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
 }
 
-const FIRST_NAMES = ["יעל", "עומר", "טל", "רותם", "אביב", "הדר", "ליאור", "נועם", "שני", "גיא", "מאיה", "דור", "אורי", "ניצן", "רון"];
-const LAST_NAMES = ["כהן", "לוי", "מזרחי", "פרץ", "ביטון", "אזולאי", "דהן", "אוחיון", "גבאי", "שרעבי"];
+let TICKETS = [];
 
-const CUSTOMERS = Array.from({ length: 25 }).map((_, i) => {
-  const first = randomFrom(FIRST_NAMES);
-  const last = randomFrom(LAST_NAMES);
-  const name = `${first} ${last}`;
-  return {
-    id: `C-${1000 + i}`,
-    name,
-    email: `${first}.${last}@example.co.il`.toLowerCase(),
-    phone: `05${Math.floor(Math.random() * 9)}-${Math.floor(1000000 + Math.random() * 8999999)}`,
-    company: randomFrom(COMPANIES),
-  };
-});
+async function loadTickets() {
+  const { data, error } = await supabaseClient
+    .from("tickets")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-const SUBJECTS = [
-  "החיוב החודשי כפול", "האתר לא נטען אצלי", "המשלוח מתעכב", "רוצה לבטל את המנוי",
-  "בקשה להחזר כספי", "שגיאה בעת התחברות", "המוצר הגיע פגום", "שינוי פרטי חשבון",
-  "שאלה לגבי חבילת שירות", "לא קיבלתי אימות במייל", "בעיה באפליקציה הניידת",
-  "עדכון אמצעי תשלום", "בקשה לחשבונית מס", "תמיכה בהתקנה", "תקלה בסנכרון נתונים",
-];
+  if (error) {
+    throw new Error(error.message || "שגיאה בטעינת הפניות מ-Supabase.");
+  }
 
-function generateTickets(count) {
-  const tickets = [];
-  for (let i = 0; i < count; i++) {
-    const customer = randomFrom(CUSTOMERS);
-    const created = randomDate(30);
-    const status = randomFrom(STATUSES);
-    const priority = randomFrom(PRIORITIES);
-    const slaHours = priority === "דחופה" ? 2 : priority === "גבוהה" ? 8 : priority === "רגילה" ? 24 : 48;
-    const slaDue = new Date(created.getTime() + slaHours * 3600 * 1000);
-    const isClosed = status === "סגור";
-    const csat = isClosed && Math.random() > 0.3 ? Math.floor(1 + Math.random() * 5) : null;
-    const now = new Date();
-    const breached = !isClosed && slaDue < now;
-
-    tickets.push({
-      id: `T-${20000 + i}`,
-      customerId: customer.id,
-      customerName: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      company: customer.company,
-      subject: randomFrom(SUBJECTS),
-      channel: randomFrom(CHANNELS),
-      status,
-      priority,
-      category: randomFrom(CATEGORIES),
-      agent: randomFrom(AGENTS),
+  TICKETS = (data || []).map((row) => {
+    const created = new Date(row.created_at);
+    const slaDue = new Date(row.sla_due);
+    return {
+      id: row.id,
+      customerName: row.customer_name,
+      email: row.email || "",
+      phone: row.phone || "",
+      company: row.company || "",
+      subject: row.subject,
+      channel: row.channel,
+      status: row.status,
+      priority: row.priority,
+      category: row.category,
+      agent: row.agent,
       created,
       createdLabel: formatDate(created),
-      updatedLabel: formatDate(randomDate(5)),
       slaDue,
       slaDueLabel: formatDate(slaDue),
-      slaBreached: breached,
-      csat,
-    });
-  }
-  return tickets.sort((a, b) => b.created - a.created);
-}
+      slaBreached: row.sla_breached,
+      csat: row.csat,
+    };
+  });
 
-const TICKETS = generateTickets(38);
+  return TICKETS;
+}

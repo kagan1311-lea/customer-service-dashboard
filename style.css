@@ -96,10 +96,8 @@ body {
   cursor: pointer;
 }
 .table-toolbar button:hover { background: #4338ca; }
-.table-toolbar button#uploadButton { background: var(--accent); }
-.table-toolbar button#uploadButton:hover { background: #0284c7; }
 
-.upload-error {
+.load-error {
   background: #fef2f2;
   color: var(--red);
   border: 1px solid #fecaca;

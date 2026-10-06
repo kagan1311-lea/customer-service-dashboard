@@ -208,76 +208,8 @@ function renderCharts() {
   });
 }
 
-const HEADER_MAP = {
-  "מס' פנייה": "id", "מספר פנייה": "id", "id": "id",
-  "לקוח": "customerName", "customer": "customerName", "שם לקוח": "customerName",
-  "נושא": "subject", "subject": "subject",
-  "ערוץ": "channel", "channel": "channel",
-  "סטטוס": "status", "status": "status",
-  "עדיפות": "priority", "priority": "priority",
-  "סוכן": "agent", "agent": "agent",
-  "נוצר": "createdLabel", "created": "createdLabel",
-  "קטגוריה": "category", "category": "category",
-  "אימייל": "email", "email": "email",
-  "טלפון": "phone", "phone": "phone",
-  "חברה": "company", "company": "company",
-  "csat": "csat",
-  "sla": "slaRaw",
-};
-
-function normalizeHeader(h) {
-  return String(h).trim().toLowerCase();
-}
-
-function parseUploadedRows(rows) {
-  if (!rows.length) {
-    throw new Error("הקובץ ריק — לא נמצאו שורות נתונים.");
-  }
-
-  const sampleKeys = Object.keys(rows[0]).map(normalizeHeader);
-  const mappedKeys = sampleKeys.filter((k) => HEADER_MAP[k]);
-  const hasRequired = ["customerName", "subject", "status"].every((required) =>
-    sampleKeys.some((k) => HEADER_MAP[k] === required)
-  );
-  if (!mappedKeys.length || !hasRequired) {
-    throw new Error(
-      "עמודות הקובץ לא מוכרות. נדרשות לפחות העמודות: לקוח, נושא, סטטוס."
-    );
-  }
-
-  return rows.map((row, i) => {
-    const ticket = {};
-    Object.entries(row).forEach(([header, value]) => {
-      const field = HEADER_MAP[normalizeHeader(header)];
-      if (field) ticket[field] = value;
-    });
-
-    const createdDate = ticket.createdLabel instanceof Date ? ticket.createdLabel : new Date(ticket.createdLabel);
-    const created = isNaN(createdDate.getTime()) ? new Date() : createdDate;
-
-    return {
-      id: ticket.id ? String(ticket.id) : `U-${30000 + i}`,
-      customerName: ticket.customerName || "—",
-      email: ticket.email || "",
-      phone: ticket.phone || "",
-      company: ticket.company || "",
-      subject: ticket.subject || "—",
-      channel: ticket.channel || "—",
-      status: ticket.status || "—",
-      priority: ticket.priority || "רגילה",
-      category: ticket.category || "—",
-      agent: ticket.agent || "—",
-      created,
-      createdLabel: ticket.createdLabel instanceof Date ? formatDate(created) : String(ticket.createdLabel || formatDate(created)),
-      slaDueLabel: "",
-      slaBreached: String(ticket.slaRaw || "").includes("חריג"),
-      csat: ticket.csat ? Number(ticket.csat) : null,
-    };
-  });
-}
-
-function showUploadError(message) {
-  const box = document.getElementById("uploadError");
+function showLoadError(message) {
+  const box = document.getElementById("loadError");
   if (!message) {
     box.hidden = true;
     box.textContent = "";
@@ -285,44 +217,6 @@ function showUploadError(message) {
   }
   box.hidden = false;
   box.textContent = message;
-}
-
-function handleFile(file) {
-  const isCsv = /\.csv$/i.test(file.name);
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const workbook = isCsv
-        ? XLSX.read(e.target.result, { type: "string", cellDates: true })
-        : XLSX.read(e.target.result, { type: "array", cellDates: true });
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
-      const newTickets = parseUploadedRows(rows);
-
-      TICKETS.splice(0, TICKETS.length, ...newTickets.sort((a, b) => b.created - a.created));
-      state.search = "";
-      state.status = "";
-      state.priority = "";
-      state.channel = "";
-      state.agent = "";
-      document.getElementById("searchInput").value = "";
-
-      showUploadError(null);
-      document.getElementById("lastUpdate").textContent = new Date().toLocaleString("he-IL");
-      populateFilterOptions();
-      renderKPIs();
-      renderCharts();
-      renderTable();
-    } catch (err) {
-      showUploadError(err.message || "לא ניתן לקרוא את הקובץ. יש לבדוק שהוא בפורמט CSV/XLSX תקין.");
-    }
-  };
-  reader.onerror = () => showUploadError("לא ניתן לקרוא את הקובץ.");
-  if (isCsv) {
-    reader.readAsText(file, "utf-8");
-  } else {
-    reader.readAsArrayBuffer(file);
-  }
 }
 
 function attachFilterEvents() {
@@ -353,24 +247,21 @@ function attachFilterEvents() {
   document.getElementById("modalOverlay").addEventListener("click", (e) => {
     if (e.target.id === "modalOverlay") closeModal();
   });
-
-  document.getElementById("uploadButton").addEventListener("click", () => {
-    document.getElementById("fileInput").click();
-  });
-  document.getElementById("fileInput").addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (file) handleFile(file);
-    e.target.value = "";
-  });
 }
 
-function init() {
+async function init() {
+  attachFilterEvents();
+  try {
+    await loadTickets();
+    showLoadError(null);
+  } catch (err) {
+    showLoadError(err.message || "שגיאה בטעינת הפניות מ-Supabase.");
+  }
   document.getElementById("lastUpdate").textContent = new Date().toLocaleString("he-IL");
   populateFilterOptions();
   renderKPIs();
   renderCharts();
   renderTable();
-  attachFilterEvents();
 }
 
 document.addEventListener("DOMContentLoaded", init);

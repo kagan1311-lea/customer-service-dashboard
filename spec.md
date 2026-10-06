@@ -8,7 +8,7 @@
 
 ## What it is / is not
 
-**It is** a read-and-manage oversight dashboard for the store's customer service tickets: KPI summary, trend charts, a filterable/searchable ticket table, ticket detail view, and the ability to import ticket data from a CSV/Excel file.
+**It is** a read-and-manage oversight dashboard for the store's customer service tickets: KPI summary, trend charts, a filterable/searchable ticket table, and a ticket detail view. Ticket data is loaded from a Supabase (Postgres) database.
 
 **It is not:**
 - a ticketing system for agents to reply to or resolve tickets
@@ -21,7 +21,7 @@
 
 Browser-based web app. Desktop-first (manager/team-lead workstation), and it must also read and work well on mobile (checking the queue from a phone). One app, responsive layout — no separate mobile app.
 
-**No server.** Static client-side only: plain HTML/CSS/JS, no backend, no build step, no server-side code or database. It must run by opening `index.html` directly (or serving the folder as static files) — nothing to deploy or host beyond that. Any data (demo or uploaded) lives and is processed entirely in the browser.
+**No server of our own.** Static client-side only: plain HTML/CSS/JS, no backend code, no build step. It must run by opening `index.html` directly (or serving the folder as static files) — nothing to deploy or host beyond that. Ticket data is read directly from Supabase (Postgres) over its public client API, using a publishable anon key with row-level security restricting the client to read-only access; there is no app-specific backend or server-side code.
 
 ## Design
 
@@ -43,7 +43,7 @@ New features (filters, buttons, modals, etc.) should reuse these existing CSS va
 - View ticket volume and status trend charts
 - See a table of all tickets, searchable and filterable by status, priority, channel, and agent
 - Open a ticket to see its full details
-- Upload a CSV or Excel file to load/replace ticket data into the dashboard
+- Load ticket data from the Supabase database on page load
 
 **Should**
 - Filter/search by date range and category
@@ -57,10 +57,9 @@ New features (filters, buttons, modals, etc.) should reuse these existing CSS va
 
 ## Done means
 
-**Feature: Upload CSV/Excel**
-- Clicking the upload button opens a file picker accepting `.csv`, `.xls`, and `.xlsx`.
-- A valid file replaces the current ticket dataset and the dashboard (KPIs, charts, table) updates within 2 seconds.
-- An invalid or unreadable file shows a clear error message and leaves the existing data unchanged.
+**Feature: Load ticket data from Supabase**
+- On page load, the dashboard fetches tickets from the Supabase `tickets` table and renders KPIs, charts, and the table from that data.
+- If the fetch fails, a clear error message is shown and the rest of the page still renders (empty state) rather than crashing.
 
 **Feature: Filter/search the ticket table**
 - Selecting a status, priority, channel, or agent filter narrows the table to only matching tickets immediately.
