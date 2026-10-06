@@ -25,11 +25,9 @@ Browser-based web app. Desktop-first (manager/team-lead workstation), and it mus
 
 ## Data refresh
 
-The dashboard itself only loads data on page load/reload — it does not poll Supabase while open. For a demo with static data this is enough, since the page always shows the latest data on the next visit.
+The dashboard polls for fresh data every 15 minutes while open (re-running the same load used on page load, re-rendering KPIs/charts/table and preserving the user's current filters/search), in addition to loading on initial page load/reload. This keeps a dashboard left open on someone's screen from going stale.
 
-To make the demo feel alive without a real ticketing system behind it, the demo data in Supabase is regenerated on a schedule (via `pg_cron`, every 15 minutes) rather than staying static — each run replaces all rows in `tickets` with a fresh random set, exactly like the original seed. This is demo-only infrastructure, scoped to run until **2026-10-06 19:00 (Asia/Jerusalem)**, after which it stops automatically.
-
-**Important distinction:** this periodic regeneration only keeps the *demo data* moving — it does not make the open page itself refresh. If the data source were real (not demo), simply reloading on page load would not be enough once a manager leaves the dashboard open: the page would also need its own periodic client-side refresh (e.g. re-run `loadTickets()` every N minutes) so an open tab doesn't go stale. That client-side polling is not implemented yet — see Later, below.
+To make the demo feel alive without a real ticketing system behind it, the demo data in Supabase is *also* regenerated on its own schedule (via `pg_cron`, every 15 minutes) — each run replaces all rows in `tickets` with a fresh random set, exactly like the original seed. This is demo-only infrastructure, scoped to run until **2026-10-06 19:00 (Asia/Jerusalem)**, after which it stops automatically. The client-side 15-minute poll (above) is permanent app behavior and keeps running regardless; only the server-side demo-data regeneration is time-boxed.
 
 Follow the look already established in the repository's initial commit (`style.css`, `index.html`) — don't introduce a new visual style:
 
@@ -49,7 +47,7 @@ New features (filters, buttons, modals, etc.) should reuse these existing CSS va
 - View ticket volume and status trend charts
 - See a table of all tickets, searchable and filterable by status, priority, channel, and agent
 - Open a ticket to see its full details
-- Load ticket data from the Supabase database on page load
+- Load ticket data from the Supabase database on page load, and automatically re-poll every 15 minutes while the page stays open
 
 **Should**
 - Filter/search by date range and category
@@ -59,13 +57,13 @@ New features (filters, buttons, modals, etc.) should reuse these existing CSS va
 **Later**
 - Export filtered views back to CSV/Excel
 - Per-agent workload and performance breakdown
-- Client-side periodic auto-refresh (poll Supabase every few minutes) so a dashboard left open stays current once the data source is real, not demo
 
 ## Done means
 
 **Feature: Load ticket data from Supabase**
 - On page load, the dashboard fetches tickets from the Supabase `tickets` table and renders KPIs, charts, and the table from that data.
 - If the fetch fails, a clear error message is shown and the rest of the page still renders (empty state) rather than crashing.
+- While the page stays open, it re-fetches and re-renders automatically every 15 minutes, without the user reloading, and without losing their current filter/search selections.
 
 **Feature: Filter/search the ticket table**
 - Selecting a status, priority, channel, or agent filter narrows the table to only matching tickets immediately.

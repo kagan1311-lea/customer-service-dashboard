@@ -25,7 +25,7 @@ npx serve .
 
 An internet connection is required to load ticket data from Supabase.
 
-The page loads data on page load/reload only — it does not poll in the background while open. To keep the demo data feeling alive, it is regenerated server-side every 15 minutes via a `pg_cron` job in Supabase (scoped to run until 2026-10-06 19:00 Asia/Jerusalem); reload the page to see the latest set.
+The page re-fetches and re-renders from Supabase automatically every 15 minutes while it stays open (current filters/search are preserved), in addition to loading on page load. To keep the demo data feeling alive, it is also regenerated server-side every 15 minutes via a `pg_cron` job in Supabase (scoped to run until 2026-10-06 19:00 Asia/Jerusalem); the client-side refresh itself is permanent app behavior.
 
 ## Project structure
 

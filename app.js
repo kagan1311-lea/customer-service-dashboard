@@ -32,6 +32,7 @@ function populateFilterOptions() {
       opt.textContent = v;
       select.appendChild(opt);
     });
+    select.value = state[key] || "";
   });
 }
 
@@ -249,19 +250,27 @@ function attachFilterEvents() {
   });
 }
 
-async function init() {
-  attachFilterEvents();
+const AUTO_REFRESH_INTERVAL_MS = 15 * 60 * 1000;
+
+async function refreshData() {
   try {
     await loadTickets();
     showLoadError(null);
   } catch (err) {
     showLoadError(err.message || "שגיאה בטעינת הפניות מ-Supabase.");
+    return;
   }
   document.getElementById("lastUpdate").textContent = new Date().toLocaleString("he-IL");
   populateFilterOptions();
   renderKPIs();
   renderCharts();
   renderTable();
+}
+
+function init() {
+  attachFilterEvents();
+  refreshData();
+  setInterval(refreshData, AUTO_REFRESH_INTERVAL_MS);
 }
 
 document.addEventListener("DOMContentLoaded", init);
